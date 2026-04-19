@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One Card Dungeon - Mapa</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <p id="level-indicator" class="level-indicator">Nivel 1</p>
+    </header>
+
+  <section class="panel">
+    <div class="layout">
+      <div class="player-column">
+        <aside id="player-panel" class="sidebar"></aside>
+      </div>
+
+      <div class="map-column">
+        <div id="game-board" class="game-stage"></div>
+      </div>
+
+      <div class="phase-column">
+        <aside id="phase-panel" class="sidebar"></aside>
+        <div class="board-actions board-actions-side">
+          <button id="next-phase" class="btn-next-phase" type="button">Finalizar turno</button>
+          <button id="next-level" class="btn-next-level" type="button">Pasar nivel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="./dist/main.js"></script>
+</body>
+</html>
