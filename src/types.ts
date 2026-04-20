@@ -2,7 +2,8 @@ export type TileType = 'floor' | 'wall' | 'stairs';
 export type CardSide = 'A' | 'B';
 export type EnemyName = 'Araña' | 'Esqueleto' | 'Ogro' | 'Demonio';
 export type PlayerStatKey = 'vida' | 'velocidad' | 'dano' | 'defensa' | 'alcance';
-export type EnergyStatKey = 'velocidad' | 'ataque' | 'defensa';
+export type EnergyStatKey = 'velocidad' | 'ataque' | 'defensa' | 'alcance';
+export type PlayerClassId = 'paladin' | 'barbaro' | 'arquera' | 'maga';
 
 export type TurnPhase =
   | 'energy'
@@ -74,6 +75,7 @@ export interface PlayerUpgrades {
 
 export interface Player {
   nombre: string;
+  clase: PlayerClassId;
   x: number;
   y: number;
   vidaActual: number;
@@ -89,6 +91,7 @@ export interface TurnResources {
     velocidad: number | null;
     ataque: number | null;
     defensa: number | null;
+    alcance: number | null;
   };
   selectedDieIndex: number | null;
   velocidadDisponible: number;

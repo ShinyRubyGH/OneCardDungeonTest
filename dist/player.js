@@ -19,11 +19,12 @@ function clampStat(value) {
 export function getBasePlayerStats() {
     return { ...BASE_PLAYER_STATS };
 }
-export function createPlayer(map) {
+export function createPlayer(map, clase) {
     const startX = map.side === 'A' ? 0 : map.width - 1;
     const startY = map.height - 1;
     return {
         nombre: 'Aventurero',
+        clase,
         x: startX,
         y: startY,
         vidaActual: BASE_PLAYER_STATS.vida,

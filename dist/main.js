@@ -3,10 +3,13 @@ import { buildMapForLevel, getSpawnTilesForLevel, getStartTiles } from './map.js
 import { createPlayer, grantLevelCompletionUpgrade, movePlayerToMapStart, upgradePlayerStat, attackEnemy, movePlayer, canMoveTo, canAttackEnemy } from './player.js';
 import { assignSelectedDieToStat, getInitialTurnResources, getNextPhase, isEnergyAssignmentComplete, rollEnergyDice, selectEnergyDie, setRolledDice } from './phase.js';
 import { renderMap } from './render.js';
+import { PLAYER_CLASS_OPTIONS, getPlayerClassOption } from './constants.js';
 const board = document.getElementById('game-board');
 const nextLevelBtn = document.getElementById('next-level');
 const nextPhaseBtn = document.getElementById('next-phase');
 const levelIndicator = document.getElementById('level-indicator');
+const characterModal = document.getElementById('character-modal');
+const characterOptions = document.getElementById('character-options');
 if (!(board instanceof HTMLElement)) {
     throw new Error('No se encontró el contenedor #game-board');
 }
@@ -14,9 +17,17 @@ const boardElement = board;
 let nivelActual = 1;
 let currentMap = buildMapForLevel(nivelActual);
 let currentEnemies = [];
-let player = createPlayer(currentMap);
+let selectedClass = null;
+let player = createPlayer(currentMap, 'paladin');
 let currentPhase = 'energy';
 let turnResources = getInitialTurnResources(player);
+let classAbilityState = {
+    paladinUsedInLevel: false,
+    archerUsedInLevel: false,
+    mageUsedInLevel: false,
+    barbarianUsedInTurn: false,
+    lastTurnAssignedDice: []
+};
 const TUTORIAL_STEPS = [
     {
         text: 'Objetivo: limpia el nivel derrotando todos los enemigos para poder pasar al siguiente.',
@@ -112,6 +123,108 @@ function initTutorial() {
         }
     });
 }
+function resetLevelAbilities() {
+    classAbilityState = {
+        ...classAbilityState,
+        paladinUsedInLevel: false,
+        archerUsedInLevel: false,
+        mageUsedInLevel: false,
+        barbarianUsedInTurn: false,
+        lastTurnAssignedDice: []
+    };
+}
+function resetTurnAbilities() {
+    classAbilityState = {
+        ...classAbilityState,
+        barbarianUsedInTurn: false
+    };
+}
+function isAnyEnergyAssigned(turn) {
+    return (turn.assignedEnergy.velocidad !== null ||
+        turn.assignedEnergy.alcance !== null ||
+        turn.assignedEnergy.ataque !== null ||
+        turn.assignedEnergy.defensa !== null);
+}
+function getAssignedDiceSnapshot(turn) {
+    return [
+        turn.assignedEnergy.velocidad,
+        turn.assignedEnergy.alcance,
+        turn.assignedEnergy.ataque,
+        turn.assignedEnergy.defensa
+    ].filter((die) => die !== null);
+}
+function canUsePaladinAbility() {
+    return (player.clase === 'paladin' &&
+        currentPhase === 'energy' &&
+        !classAbilityState.paladinUsedInLevel &&
+        classAbilityState.lastTurnAssignedDice.length > 0 &&
+        turnResources.energyDice.length === 0 &&
+        !isAnyEnergyAssigned(turnResources));
+}
+function canUseBarbarianAbility() {
+    return (player.clase === 'barbaro' &&
+        currentPhase === 'energy' &&
+        player.vidaActual === 1 &&
+        !classAbilityState.barbarianUsedInTurn &&
+        turnResources.energyDice.length > 0 &&
+        !isAnyEnergyAssigned(turnResources));
+}
+function canUseMageAbility() {
+    return (player.clase === 'maga' &&
+        currentPhase === 'energy' &&
+        !classAbilityState.mageUsedInLevel &&
+        turnResources.energyDice.length > 0 &&
+        !isAnyEnergyAssigned(turnResources));
+}
+function getClassAbilityAction() {
+    if (canUsePaladinAbility()) {
+        return {
+            label: 'Consagracion: conservar dado',
+            description: 'Paladin: conserva automaticamente el dado mas alto del turno anterior.'
+        };
+    }
+    if (canUseBarbarianAbility()) {
+        return {
+            label: 'Furia: volver a tirar',
+            description: 'Barbaro: con 1 de vida, puedes relanzar los dados una vez en este turno.'
+        };
+    }
+    if (canUseMageAbility()) {
+        return {
+            label: 'Hechizo: volver a tirar',
+            description: 'Maga: vuelve a tirar todos los dados de energia (una vez por nivel).'
+        };
+    }
+    return undefined;
+}
+function initCharacterSelection() {
+    if (!(characterModal instanceof HTMLElement) || !(characterOptions instanceof HTMLElement)) {
+        selectedClass = 'paladin';
+        player = createPlayer(currentMap, selectedClass);
+        loadLevel(1);
+        return;
+    }
+    characterOptions.innerHTML = '';
+    for (const option of PLAYER_CLASS_OPTIONS) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'character-option-btn';
+        button.innerHTML = `
+      <span class="character-option-title">${option.titulo}</span>
+      <span class="character-option-desc">${option.descripcion}</span>
+    `;
+        button.addEventListener('click', () => {
+            selectedClass = option.id;
+            player = createPlayer(currentMap, selectedClass);
+            characterModal.classList.remove('open');
+            characterModal.setAttribute('aria-hidden', 'true');
+            loadLevel(1);
+        });
+        characterOptions.appendChild(button);
+    }
+    characterModal.classList.add('open');
+    characterModal.setAttribute('aria-hidden', 'false');
+}
 function canAdvanceToNextLevel() {
     return (nivelActual < 12 &&
         currentPhase === 'level-complete' &&
@@ -166,9 +279,12 @@ function updateNextPhaseButtonState() {
 }
 function renderCurrentState() {
     if (levelIndicator instanceof HTMLElement) {
-        levelIndicator.textContent = `Nivel ${currentMap.level}`;
+        const classLabel = getPlayerClassOption(player.clase).nombre;
+        levelIndicator.textContent = `Nivel ${currentMap.level} | ${classLabel}`;
     }
-    renderMap(currentMap, boardElement, currentEnemies, player, handleUpgradeStat, currentPhase, turnResources, handleRollEnergyDice, handleSelectEnergyDie, handleAssignEnergyDie, handleMovePlayer, handleAttackEnemy);
+    const showReachAssignment = player.clase === 'arquera' &&
+        (!classAbilityState.archerUsedInLevel || turnResources.assignedEnergy.alcance !== null);
+    renderMap(currentMap, boardElement, currentEnemies, player, handleUpgradeStat, currentPhase, turnResources, showReachAssignment, getClassAbilityAction(), handleRollEnergyDice, handleSelectEnergyDie, handleAssignEnergyDie, handleUseClassAbility, handleMovePlayer, handleAttackEnemy);
     updateNextPhaseButtonState();
     updateNextLevelButtonState();
 }
@@ -180,6 +296,8 @@ function loadLevel(level) {
     player = movePlayerToMapStart(player, currentMap);
     currentPhase = 'energy';
     turnResources = getInitialTurnResources(player);
+    resetTurnAbilities();
+    resetLevelAbilities();
     renderCurrentState();
     console.log('Nivel actual:', nivelActual);
     console.log('Fase:', currentPhase);
@@ -209,6 +327,39 @@ function handleRollEnergyDice() {
     turnResources = setRolledDice(player, rollEnergyDice());
     renderCurrentState();
 }
+function handleUseClassAbility() {
+    if (currentPhase !== 'energy') {
+        return;
+    }
+    if (canUsePaladinAbility()) {
+        const conserved = Math.max(...classAbilityState.lastTurnAssignedDice);
+        const rerolled = rollEnergyDice();
+        turnResources = setRolledDice(player, [conserved, rerolled[1], rerolled[2]]);
+        classAbilityState = {
+            ...classAbilityState,
+            paladinUsedInLevel: true
+        };
+        renderCurrentState();
+        return;
+    }
+    if (canUseBarbarianAbility()) {
+        turnResources = setRolledDice(player, rollEnergyDice());
+        classAbilityState = {
+            ...classAbilityState,
+            barbarianUsedInTurn: true
+        };
+        renderCurrentState();
+        return;
+    }
+    if (canUseMageAbility()) {
+        turnResources = setRolledDice(player, rollEnergyDice());
+        classAbilityState = {
+            ...classAbilityState,
+            mageUsedInLevel: true
+        };
+        renderCurrentState();
+    }
+}
 function handleSelectEnergyDie(dieIndex) {
     if (currentPhase !== 'energy') {
         return;
@@ -220,8 +371,26 @@ function handleAssignEnergyDie(stat) {
     if (currentPhase !== 'energy') {
         return;
     }
+    if (stat === 'alcance') {
+        if (player.clase !== 'arquera') {
+            return;
+        }
+        if (classAbilityState.archerUsedInLevel && turnResources.assignedEnergy.alcance === null) {
+            return;
+        }
+    }
     turnResources = assignSelectedDieToStat(player, turnResources, stat);
+    if (stat === 'alcance' && turnResources.assignedEnergy.alcance !== null) {
+        classAbilityState = {
+            ...classAbilityState,
+            archerUsedInLevel: true
+        };
+    }
     if (isEnergyAssignmentComplete(turnResources)) {
+        classAbilityState = {
+            ...classAbilityState,
+            lastTurnAssignedDice: getAssignedDiceSnapshot(turnResources)
+        };
         currentPhase = getNextPhase(currentPhase);
     }
     renderCurrentState();
@@ -290,6 +459,7 @@ function advancePhase() {
         currentPhase = getNextPhase(currentPhase);
         if (currentPhase === 'energy') {
             turnResources = getInitialTurnResources(player);
+            resetTurnAbilities();
         }
         renderCurrentState();
         return;
@@ -297,6 +467,7 @@ function advancePhase() {
     currentPhase = getNextPhase(currentPhase);
     if (currentPhase === 'energy') {
         turnResources = getInitialTurnResources(player);
+        resetTurnAbilities();
     }
     renderCurrentState();
 }
@@ -313,4 +484,4 @@ if (nextPhaseBtn instanceof HTMLButtonElement) {
     });
 }
 initTutorial();
-loadLevel(1);
+initCharacterSelection();

@@ -6,7 +6,8 @@ export function getInitialTurnResources(player: Player): TurnResources {
     assignedEnergy: {
       velocidad: null,
       ataque: null,
-      defensa: null
+      defensa: null,
+      alcance: null
     },
     selectedDieIndex: null,
     velocidadDisponible: 0,
@@ -30,7 +31,8 @@ export function setRolledDice(player: Player, dice: number[]): TurnResources {
     assignedEnergy: {
       velocidad: null,
       ataque: null,
-      defensa: null
+      defensa: null,
+      alcance: null
     },
     selectedDieIndex: null,
     velocidadDisponible: 0,
@@ -78,6 +80,7 @@ export function assignSelectedDieToStat(
   const velocidadBonus = assignedEnergy.velocidad ?? 0;
   const ataqueBonus = assignedEnergy.ataque ?? 0;
   const defensaBonus = assignedEnergy.defensa ?? 0;
+  const alcanceBonus = assignedEnergy.alcance ?? 0;
 
   return {
     energyDice: remainingDice,
@@ -86,13 +89,13 @@ export function assignSelectedDieToStat(
     velocidadDisponible: player.stats.velocidad + velocidadBonus,
     ataqueDisponible: player.stats.dano + ataqueBonus,
     defensaTotal: player.stats.defensa + defensaBonus,
-    alcanceTotal: player.stats.alcance
+    alcanceTotal: player.stats.alcance + alcanceBonus
   };
 }
 
 export function isEnergyAssignmentComplete(turn: TurnResources): boolean {
   return (
-    turn.assignedEnergy.velocidad !== null &&
+    (turn.assignedEnergy.velocidad !== null || turn.assignedEnergy.alcance !== null) &&
     turn.assignedEnergy.ataque !== null &&
     turn.assignedEnergy.defensa !== null
   );

@@ -1,6 +1,7 @@
 import { getPhaseDescription, getPhaseLabel } from './phase.js';
 import { canAttackEnemy, canMoveTo, getMovementCost } from './player.js';
 import { getEnemyByLevel } from './enemy.js';
+import { getPlayerClassOption } from './constants.js';
 function getStatIcon(stat) {
     switch (stat) {
         case 'vida':
@@ -147,7 +148,7 @@ function createEnemyStatRow(label, stat, value) {
     </div>
   `;
 }
-function createEnergyAssignmentBlock(label, stat, assignedValue, canAssign) {
+function createEnergyAssignmentBlock(_label, stat, assignedValue, canAssign) {
     const isAssigned = assignedValue !== null;
     const icon = getStatIcon(stat);
     const pipMap = {
@@ -257,7 +258,7 @@ function renderDiceFaces(dice, selectedDieIndex) {
     </div>
   `;
 }
-function renderPhasePanel(phasePanel, currentPhase, turnResources, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie) {
+function renderPhasePanel(phasePanel, currentPhase, turnResources, showReachAssignment = false, classAbilityAction, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onUseClassAbility) {
     phasePanel.innerHTML = '';
     const title = document.createElement('h2');
     title.className = 'panel-block-title';
@@ -285,6 +286,17 @@ function renderPhasePanel(phasePanel, currentPhase, turnResources, onRollEnergyD
             <div class="phase-dice-wrap">
               ${renderDiceFaces(turnResources?.energyDice ?? [], turnResources?.selectedDieIndex ?? null)}
             </div>
+
+            ${classAbilityAction
+                ? `
+                  <div class="phase-actions">
+                    <button class="phase-btn" id="use-class-ability" type="button">
+                      ${classAbilityAction.label}
+                    </button>
+                    <p class="entity-position">${classAbilityAction.description}</p>
+                  </div>
+                `
+                : ''}
           `
             : ''}
 
@@ -300,6 +312,9 @@ function renderPhasePanel(phasePanel, currentPhase, turnResources, onRollEnergyD
 
       <div class="assignment-panel">
         ${createEnergyAssignmentBlock('Velocidad', 'velocidad', turnResources?.assignedEnergy.velocidad ?? null, currentPhase === 'energy')}
+        ${showReachAssignment
+            ? createEnergyAssignmentBlock('Alcance', 'alcance', turnResources?.assignedEnergy.alcance ?? null, currentPhase === 'energy')
+            : ''}
         ${createEnergyAssignmentBlock('Ataque', 'ataque', turnResources?.assignedEnergy.ataque ?? null, currentPhase === 'energy')}
         ${createEnergyAssignmentBlock('Defensa', 'defensa', turnResources?.assignedEnergy.defensa ?? null, currentPhase === 'energy')}
       </div>
@@ -309,6 +324,12 @@ function renderPhasePanel(phasePanel, currentPhase, turnResources, onRollEnergyD
             const rollBtn = phaseCard.querySelector('#roll-energy-dice');
             rollBtn?.addEventListener('click', () => {
                 onRollEnergyDice();
+            });
+        }
+        if (currentPhase === 'energy' && onUseClassAbility) {
+            const abilityBtn = phaseCard.querySelector('#use-class-ability');
+            abilityBtn?.addEventListener('click', () => {
+                onUseClassAbility();
             });
         }
         if (currentPhase === 'energy' && onSelectEnergyDie) {
@@ -348,12 +369,15 @@ function renderPlayerPanel(playerPanel, player, turnResources, onUpgradeStat) {
         const velocidadBonus = turnResources?.assignedEnergy.velocidad ?? 0;
         const ataqueBonus = turnResources?.assignedEnergy.ataque ?? 0;
         const defensaBonus = turnResources?.assignedEnergy.defensa ?? 0;
+        const alcanceBonus = turnResources?.assignedEnergy.alcance ?? 0;
+        const playerClass = getPlayerClassOption(player.clase);
         const playerCard = document.createElement('section');
         playerCard.className = 'entity-card player-card';
         playerCard.innerHTML = `
       <div class="entity-card-header">
         <span class="entity-badge player-badge">Jugador</span>
         <h3>${player.nombre}</h3>
+        <p class="entity-position">Clase: ${playerClass.nombre}</p>
       </div>
 
       ${createPlayerReferenceBlock(player)}
@@ -365,7 +389,7 @@ function renderPlayerPanel(playerPanel, player, turnResources, onUpgradeStat) {
         ${createStatRow('Velocidad', 'velocidad', player.stats.velocidad, velocidadBonus, turnResources?.velocidadDisponible, canUseUpgrade && player.stats.velocidad < 6)}
         ${createStatRow('Daño', 'dano', player.stats.dano, ataqueBonus, turnResources?.ataqueDisponible, canUseUpgrade && player.stats.dano < 6)}
         ${createStatRow('Defensa', 'defensa', player.stats.defensa, defensaBonus, undefined, canUseUpgrade && player.stats.defensa < 6)}
-        ${createStatRow('Alcance', 'alcance', player.stats.alcance, 0, undefined, false)}
+        ${createStatRow('Alcance', 'alcance', player.stats.alcance, alcanceBonus, undefined, false)}
       </div>
     `;
         if (onUpgradeStat) {
@@ -448,7 +472,7 @@ function renderEnemyListSection(enemies) {
     section.appendChild(enemiesWrapper);
     return section;
 }
-export function renderMap(map, container, enemies = [], player = null, onUpgradeStat, currentPhase, turnResources, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onMovePlayer, onAttackEnemy) {
+export function renderMap(map, container, enemies = [], player = null, onUpgradeStat, currentPhase, turnResources, showReachAssignment = false, classAbilityAction, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onUseClassAbility, onMovePlayer, onAttackEnemy) {
     container.innerHTML = '';
     const boardGrid = document.createElement('div');
     boardGrid.className = 'board-grid';
@@ -505,6 +529,6 @@ export function renderMap(map, container, enemies = [], player = null, onUpgrade
     }
     const phasePanel = document.getElementById('phase-panel');
     if (phasePanel instanceof HTMLElement) {
-        renderPhasePanel(phasePanel, currentPhase, turnResources, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie);
+        renderPhasePanel(phasePanel, currentPhase, turnResources, showReachAssignment, classAbilityAction, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onUseClassAbility);
     }
 }

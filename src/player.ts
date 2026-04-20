@@ -1,6 +1,7 @@
 import type {
   DungeonMap,
   Player,
+  PlayerClassId,
   PlayerStatKey,
   PlayerStats,
   PlayerUpgrades,
@@ -34,12 +35,13 @@ export function getBasePlayerStats(): PlayerStats {
   return { ...BASE_PLAYER_STATS };
 }
 
-export function createPlayer(map: DungeonMap): Player {
+export function createPlayer(map: DungeonMap, clase: PlayerClassId): Player {
   const startX = map.side === 'A' ? 0 : map.width - 1;
   const startY = map.height - 1;
 
   return {
     nombre: 'Aventurero',
+    clase,
     x: startX,
     y: startY,
     vidaActual: BASE_PLAYER_STATS.vida,
