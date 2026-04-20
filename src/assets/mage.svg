@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" shape-rendering="crispEdges">
+  <rect width="96" height="96" fill="#0b0f18"/>
+  <!-- Sombrero de mago (punta) -->
+  <rect x="32" y="8" width="32" height="8" fill="#2d1b4e"/>
+  <rect x="28" y="16" width="40" height="8" fill="#3d2d6e"/>
+  <!-- Cabeza -->
+  <rect x="30" y="24" width="36" height="16" fill="#d8c08a"/>
+  <!-- Cuerpo (túnica) -->
+  <rect x="20" y="40" width="56" height="36" fill="#4a2d7e"/>
+  <!-- Detalles de túnica -->
+  <rect x="24" y="44" width="48" height="4" fill="#6a4d9e"/>
+  <!-- Brazos -->
+  <rect x="16" y="44" width="8" height="28" fill="#3d2d6e"/>
+  <rect x="72" y="44" width="8" height="28" fill="#3d2d6e"/>
+  <!-- Manos (con varita mágica) -->
+  <rect x="14" y="70" width="4" height="4" fill="#d8c08a"/>
+  <rect x="78" y="70" width="4" height="4" fill="#d8c08a"/>
+  <!-- Varita mágica en la mano derecha -->
+  <rect x="80" y="62" width="4" height="12" fill="#8b6914"/>
+  <rect x="82" y="58" width="4" height="8" fill="#ffd700"/>
+  <!-- Pantalones/piernas -->
+  <rect x="24" y="76" width="48" height="8" fill="#3d2d6e"/>
+  <!-- Botas -->
+  <rect x="20" y="84" width="56" height="8" fill="#1f2740"/>
+  <!-- Ojos mágicos -->
+  <rect x="34" y="30" width="6" height="6" fill="#ffd700"/>
+  <rect x="56" y="30" width="6" height="6" fill="#ffd700"/>
+</svg>

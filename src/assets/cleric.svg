@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" shape-rendering="crispEdges">
+  <rect width="96" height="96" fill="#0b0f18"/>
+  <!-- Capucha/Halo -->
+  <rect x="24" y="8" width="48" height="8" fill="#ffd700"/>
+  <rect x="26" y="14" width="44" height="4" fill="#ffed4e"/>
+  <!-- Cabeza -->
+  <rect x="30" y="18" width="36" height="14" fill="#d8c08a"/>
+  <!-- Túnica (blanca/clara) -->
+  <rect x="16" y="32" width="64" height="40" fill="#e8dcc4"/>
+  <!-- Símbolos de la túnica (cruz) -->
+  <rect x="42" y="44" width="12" height="24" fill="#ffd700"/>
+  <rect x="36" y="50" width="24" height="8" fill="#ffd700"/>
+  <!-- Brazos -->
+  <rect x="10" y="36" width="10" height="32" fill="#d8c08a"/>
+  <rect x="76" y="36" width="10" height="32" fill="#d8c08a"/>
+  <!-- Manos con rosario -->
+  <rect x="8" y="64" width="5" height="5" fill="#d8c08a"/>
+  <rect x="83" y="64" width="5" height="5" fill="#d8c08a"/>
+  <!-- Rosario colgante -->
+  <rect x="38" y="70" width="2" height="12" fill="#8b4513"/>
+  <rect x="56" y="70" width="2" height="12" fill="#8b4513"/>
+  <!-- Perlas del rosario -->
+  <rect x="36" y="74" width="4" height="4" fill="#c0c0c0"/>
+  <rect x="56" y="74" width="4" height="4" fill="#c0c0c0"/>
+  <!-- Pantalones oscuros -->
+  <rect x="24" y="72" width="48" height="8" fill="#3d3d4d"/>
+  <!-- Botas oscuras -->
+  <rect x="18" y="80" width="60" height="12" fill="#1f2740"/>
+</svg>

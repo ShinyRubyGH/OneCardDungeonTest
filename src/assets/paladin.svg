@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" shape-rendering="crispEdges">
+  <rect width="96" height="96" fill="#0b0f18"/>
+  <!-- Casco -->
+  <rect x="28" y="12" width="40" height="16" fill="#8b7355"/>
+  <rect x="30" y="10" width="36" height="4" fill="#a8956a"/>
+  <!-- Visor -->
+  <rect x="34" y="20" width="8" height="4" fill="#333333"/>
+  <rect x="54" y="20" width="8" height="4" fill="#333333"/>
+  <!-- Cabeza debajo del casco -->
+  <rect x="32" y="28" width="32" height="8" fill="#d8c08a"/>
+  <!-- Armadura del pecho (metálica) -->
+  <rect x="24" y="36" width="48" height="40" fill="#b5a394"/>
+  <!-- Líneas de armadura -->
+  <rect x="28" y="40" width="40" height="2" fill="#8b7355"/>
+  <rect x="28" y="52" width="40" height="2" fill="#8b7355"/>
+  <rect x="28" y="64" width="40" height="2" fill="#8b7355"/>
+  <!-- Cruz en el pecho -->
+  <rect x="44" y="48" width="8" height="16" fill="#d4a574"/>
+  <rect x="40" y="52" width="16" height="8" fill="#d4a574"/>
+  <!-- Brazos (con guanteletes) -->
+  <rect x="16" y="40" width="8" height="32" fill="#a8956a"/>
+  <rect x="72" y="40" width="8" height="32" fill="#a8956a"/>
+  <!-- Espada en la mano -->
+  <rect x="14" y="68" width="4" height="16" fill="#c0c0c0"/>
+  <rect x="12" y="68" width="8" height="2" fill="#b5a394"/>
+  <!-- Pantalones -->
+  <rect x="28" y="76" width="40" height="8" fill="#5c4033"/>
+  <!-- Botas -->
+  <rect x="20" y="84" width="56" height="8" fill="#1f2740"/>
+</svg>
