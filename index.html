@@ -33,6 +33,23 @@
       </div>
     </div>
   </section>
+
+  <button id="tutorial-open" class="tutorial-fab" type="button">Tutorial</button>
+
+  <div id="tutorial-modal" class="tutorial-modal" aria-hidden="true">
+    <div class="tutorial-card" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
+      <h2 id="tutorial-title" class="tutorial-title">Tutorial</h2>
+      <div id="tutorial-visual" class="tutorial-visual" aria-hidden="true"></div>
+      <p id="tutorial-text" class="tutorial-text"></p>
+      <div class="tutorial-footer">
+        <span id="tutorial-step" class="tutorial-step"></span>
+        <div class="tutorial-actions">
+          <button id="tutorial-skip" class="tutorial-btn tutorial-skip" type="button">Atrás</button>
+          <button id="tutorial-next" class="tutorial-btn tutorial-next" type="button">Siguiente</button>
+        </div>
+      </div>
+    </div>
+  </div>
   </main>
 
   <script type="module" src="./dist/main.js"></script>

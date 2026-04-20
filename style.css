@@ -999,6 +999,139 @@ body {
   width: 100%;
 }
 
+.tutorial-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  border: 1px solid #96c9ff;
+  background: linear-gradient(180deg, #2a74d8 0%, #143f9e 100%);
+  color: #eff7ff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(8, 10, 24, 0.8), 0 6px 14px rgba(20, 63, 158, 0.45);
+}
+
+.tutorial-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 8, 20, 0.72);
+  padding: 16px;
+}
+
+.tutorial-modal.open {
+  display: flex;
+}
+
+.tutorial-card {
+  width: min(100%, 520px);
+  height: min(380px, calc(100vh - 36px));
+  border: 2px solid #4f76db;
+  background: linear-gradient(180deg, #0a1230 0%, #060b1f 100%);
+  box-shadow: inset 0 0 0 2px #101e4a, 0 16px 34px rgba(0, 0, 0, 0.52);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tutorial-title {
+  margin: 0 0 10px;
+  color: #d9e6ff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+}
+
+.tutorial-visual {
+  height: 120px;
+  min-height: 120px;
+  border: 1px solid #2d4ca6;
+  background: #050a1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  color: #d7e4ff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 24px;
+  letter-spacing: 0.12em;
+}
+
+.tutorial-shape-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tutorial-shape {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #5b79d7;
+  background: #0b1a46;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.tutorial-text {
+  margin: 0;
+  height: 140px;
+  overflow: auto;
+  color: #c6d6ff;
+  font-size: 28px;
+  line-height: 1.18;
+  padding-right: 4px;
+}
+
+.tutorial-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tutorial-step {
+  color: #9ab3f2;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+}
+
+.tutorial-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tutorial-btn {
+  border: 1px solid #5671c6;
+  color: #e6edff;
+  background: #121d48;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.tutorial-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tutorial-next {
+  background: linear-gradient(180deg, #3d89ff 0%, #2058ce 100%);
+  border-color: #99cbff;
+}
+
+.tutorial-skip {
+  background: linear-gradient(180deg, #5f6070 0%, #333745 100%);
+  border-color: #a9acbc;
+}
+
 @media (max-width: 640px) {
   :root {
     --tile-size: 62px;

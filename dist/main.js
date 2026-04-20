@@ -17,6 +17,101 @@ let currentEnemies = [];
 let player = createPlayer(currentMap);
 let currentPhase = 'energy';
 let turnResources = getInitialTurnResources(player);
+const TUTORIAL_STEPS = [
+    {
+        text: 'Objetivo: limpia el nivel derrotando todos los enemigos para poder pasar al siguiente.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">P</span><span class="tutorial-shape">→</span><span class="tutorial-shape">A1</span><span class="tutorial-shape">A2</span></div>'
+    },
+    {
+        text: 'Fase de energía: tira 3 dados y asigna uno a velocidad, uno a daño y uno a defensa.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">⚀</span><span class="tutorial-shape">⚃</span><span class="tutorial-shape">⚅</span></div>'
+    },
+    {
+        text: 'Moverse cuesta energía de velocidad: 2 puntos si te mueves en línea recta (arriba, abajo, izquierda o derecha) y 3 puntos si te mueves en diagonal.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">2</span><span class="tutorial-shape">↔</span><span class="tutorial-shape">3</span><span class="tutorial-shape">↘</span></div>'
+    },
+    {
+        text: 'Ataca enemigos en alcance y con línea de visión. El daño se reduce por su defensa.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">🗡</span><span class="tutorial-shape">-</span><span class="tutorial-shape">🛡</span><span class="tutorial-shape">=</span><span class="tutorial-shape">❤</span></div>'
+    },
+    {
+        text: 'Si terminas el nivel recibes una mejora. Vida cura +1 hasta su tope.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">+1</span><span class="tutorial-shape">❤</span><span class="tutorial-shape">MAX 6</span></div>'
+    },
+    {
+        text: 'Si tu vida llega a 0, pierdes. Usa defensa y alcance para sobrevivir.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">❤0</span><span class="tutorial-shape">=</span><span class="tutorial-shape">FIN</span></div>'
+    },
+    {
+        text: 'Nota final: actualmente el juego cuenta con 12 niveles (del 1 al 12).',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">N</span><span class="tutorial-shape">1</span><span class="tutorial-shape">…</span><span class="tutorial-shape">12</span></div>'
+    }
+];
+let tutorialIndex = 0;
+function initTutorial() {
+    const openBtn = document.getElementById('tutorial-open');
+    const modal = document.getElementById('tutorial-modal');
+    const textEl = document.getElementById('tutorial-text');
+    const visualEl = document.getElementById('tutorial-visual');
+    const stepEl = document.getElementById('tutorial-step');
+    const skipBtn = document.getElementById('tutorial-skip');
+    const nextBtn = document.getElementById('tutorial-next');
+    if (!(openBtn instanceof HTMLButtonElement) ||
+        !(modal instanceof HTMLElement) ||
+        !(textEl instanceof HTMLElement) ||
+        !(visualEl instanceof HTMLElement) ||
+        !(stepEl instanceof HTMLElement) ||
+        !(skipBtn instanceof HTMLButtonElement) ||
+        !(nextBtn instanceof HTMLButtonElement)) {
+        return;
+    }
+    const renderTutorialStep = () => {
+        const step = TUTORIAL_STEPS[tutorialIndex];
+        textEl.textContent = step.text;
+        visualEl.innerHTML = step.visual;
+        stepEl.textContent = `Paso ${tutorialIndex + 1} / ${TUTORIAL_STEPS.length}`;
+        skipBtn.disabled = tutorialIndex === 0;
+        nextBtn.textContent = tutorialIndex === TUTORIAL_STEPS.length - 1 ? 'Listo' : 'Siguiente';
+    };
+    const openTutorial = () => {
+        tutorialIndex = 0;
+        renderTutorialStep();
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+    };
+    const closeTutorial = () => {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    };
+    openBtn.addEventListener('click', () => {
+        openTutorial();
+    });
+    skipBtn.addEventListener('click', () => {
+        if (tutorialIndex === 0) {
+            return;
+        }
+        tutorialIndex -= 1;
+        renderTutorialStep();
+    });
+    nextBtn.addEventListener('click', () => {
+        if (tutorialIndex >= TUTORIAL_STEPS.length - 1) {
+            closeTutorial();
+            return;
+        }
+        tutorialIndex += 1;
+        renderTutorialStep();
+    });
+    modal.addEventListener('click', event => {
+        if (event.target === modal) {
+            closeTutorial();
+        }
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && modal.classList.contains('open')) {
+            closeTutorial();
+        }
+    });
+}
 function canAdvanceToNextLevel() {
     return (nivelActual < 12 &&
         currentPhase === 'level-complete' &&
@@ -217,4 +312,5 @@ if (nextPhaseBtn instanceof HTMLButtonElement) {
         advancePhase();
     });
 }
+initTutorial();
 loadLevel(1);
