@@ -145,6 +145,13 @@ const LEVEL_THEME_PATHS: string[] = [
   './src/Music/xDeviruchi - Minigame .wav',
   './src/Music/xDeviruchi - The Icy Cave .wav'
 ];
+const PLAYER_ATTACK_SFX_PATHS: Record<PlayerClassId, string> = {
+  paladin: './src/assets/Sonidos/Paladin_Barbaro.wav',
+  barbaro: './src/assets/Sonidos/Paladin_Barbaro.wav',
+  arquera: './src/assets/Sonidos/Arquero.wav',
+  maga: './src/assets/Sonidos/Mago.wav'
+};
+const ENEMY_ATTACK_SFX_PATH = './src/assets/Sonidos/Enemigos.wav';
 const GAME_SAVE_STORAGE_KEY = 'one-card-dungeon-save-v1';
 const ALL_BGM_PATHS: string[] = [
   TITLE_THEME_PATH,
@@ -212,6 +219,31 @@ function playBgm(trackPath: string): void {
 
   void bgmAudio.play().catch(() => {
     // Ignorado: algunos navegadores bloquean autoplay hasta la primera interaccion.
+  });
+}
+
+function playPlayerAttackSfx(playerClass: PlayerClassId): void {
+  const sfxPath = PLAYER_ATTACK_SFX_PATHS[playerClass];
+  if (!sfxPath) {
+    return;
+  }
+
+  const attackSfx = new Audio(sfxPath);
+  attackSfx.volume = clampVolume(bgmAudio.volume);
+  attackSfx.muted = bgmAudio.muted;
+
+  void attackSfx.play().catch(() => {
+    // Ignorado: algunos navegadores bloquean audio hasta primera interaccion.
+  });
+}
+
+function playEnemyAttackSfx(): void {
+  const attackSfx = new Audio(ENEMY_ATTACK_SFX_PATH);
+  attackSfx.volume = clampVolume(bgmAudio.volume);
+  attackSfx.muted = bgmAudio.muted;
+
+  void attackSfx.play().catch(() => {
+    // Ignorado: algunos navegadores bloquean audio hasta primera interaccion.
   });
 }
 
@@ -1025,6 +1057,7 @@ function handleAttackEnemy(enemyX: number, enemyY: number): void {
   const result = attackEnemy(currentEnemies, enemyIndex, turnResources);
   currentEnemies = result.enemies;
   turnResources = result.turn;
+  playPlayerAttackSfx(player.clase);
   renderCurrentState();
 }
 
@@ -1060,6 +1093,10 @@ function advancePhase(): void {
   if (currentPhase === 'monster-attack') {
     const result = resolveMonsterAttackPhase(currentMap, player, currentEnemies, turnResources);
     player = result.player;
+
+    if (result.totalAttack > 0) {
+      playEnemyAttackSfx();
+    }
 
     if (player.vidaActual <= 0) {
       currentPhase = 'game-over';
