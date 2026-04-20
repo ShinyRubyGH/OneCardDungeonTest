@@ -69,8 +69,19 @@ function getEnemyArtworkPath(enemy) {
             return './src/assets/enemies/generic.svg';
     }
 }
-function getPlayerArtworkPath() {
-    return './src/assets/adventurer.svg';
+function getPlayerArtworkPath(playerClass) {
+    switch (playerClass) {
+        case 'paladin':
+            return './src/assets/paladin.svg';
+        case 'barbaro':
+            return './src/assets/barbarian.svg';
+        case 'arquera':
+            return './src/assets/ranger.svg';
+        case 'maga':
+            return './src/assets/mage.svg';
+        default:
+            return './src/assets/adventurer.svg';
+    }
 }
 function createTileElement(tile, player, enemy, enemyMarkerLabel) {
     const element = document.createElement('div');
@@ -201,7 +212,7 @@ function createPlayerReferenceBlock(player) {
     <section class="player-reference-artwork-shell" aria-label="Referencia del aventurero">
       <img
         class="player-reference-artwork"
-        src="${getPlayerArtworkPath()}"
+        src="${getPlayerArtworkPath(player.clase)}"
         alt="Referencia del aventurero"
       />
       <div class="player-reference-caption">

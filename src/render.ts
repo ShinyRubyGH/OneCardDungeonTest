@@ -7,7 +7,8 @@ import type {
   TurnPhase,
   TurnResources,
   EnergyStatKey,
-  EnemyDefinition
+  EnemyDefinition,
+  PlayerClassId
 } from './types.js';
 import { getPhaseDescription, getPhaseLabel } from './phase.js';
 import { canAttackEnemy, canMoveTo, getMovementCost } from './player.js';
@@ -106,8 +107,19 @@ function getEnemyArtworkPath(enemy: { id: string; nombre: string }): string {
   }
 }
 
-function getPlayerArtworkPath(): string {
-  return './src/assets/adventurer.svg';
+function getPlayerArtworkPath(playerClass: PlayerClassId): string {
+  switch (playerClass) {
+    case 'paladin':
+      return './src/assets/paladin.svg';
+    case 'barbaro':
+      return './src/assets/barbarian.svg';
+    case 'arquera':
+      return './src/assets/ranger.svg';
+    case 'maga':
+      return './src/assets/mage.svg';
+    default:
+      return './src/assets/adventurer.svg';
+  }
 }
 
 function createTileElement(
@@ -274,7 +286,7 @@ function createPlayerReferenceBlock(player: Player): string {
     <section class="player-reference-artwork-shell" aria-label="Referencia del aventurero">
       <img
         class="player-reference-artwork"
-        src="${getPlayerArtworkPath()}"
+        src="${getPlayerArtworkPath(player.clase)}"
         alt="Referencia del aventurero"
       />
       <div class="player-reference-caption">

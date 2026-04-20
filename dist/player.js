@@ -16,6 +16,20 @@ const EMPTY_UPGRADES = {
 function clampStat(value) {
     return Math.min(value, PLAYER_MAX_STAT);
 }
+function getPlayerNameByClass(clase) {
+    switch (clase) {
+        case 'barbaro':
+            return 'Grog';
+        case 'maga':
+            return 'Magnus';
+        case 'paladin':
+            return 'Arthur';
+        case 'arquera':
+            return 'Hunter';
+        default:
+            return 'Aventurero';
+    }
+}
 export function getBasePlayerStats() {
     return { ...BASE_PLAYER_STATS };
 }
@@ -23,7 +37,7 @@ export function createPlayer(map, clase) {
     const startX = map.side === 'A' ? 0 : map.width - 1;
     const startY = map.height - 1;
     return {
-        nombre: 'Aventurero',
+        nombre: getPlayerNameByClass(clase),
         clase,
         x: startX,
         y: startY,

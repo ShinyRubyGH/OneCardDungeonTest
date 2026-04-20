@@ -1047,6 +1047,7 @@ body {
 .character-subtitle {
   margin: 10px 0 0;
   color: #c6d6ff;
+  font-family: 'VT323', monospace;
   font-size: 24px;
   line-height: 1.15;
 }
@@ -1062,6 +1063,7 @@ body {
   border: 1px solid #2d4ca6;
   background: #050a1e;
   color: #d7e4ff;
+  font-family: 'VT323', monospace;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -1081,6 +1083,7 @@ body {
 }
 
 .character-option-desc {
+  font-family: 'VT323', monospace;
   font-size: 22px;
   line-height: 1.1;
   color: #bdd1ff;

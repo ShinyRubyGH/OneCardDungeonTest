@@ -31,6 +31,21 @@ function clampStat(value: number): number {
   return Math.min(value, PLAYER_MAX_STAT);
 }
 
+function getPlayerNameByClass(clase: PlayerClassId): string {
+  switch (clase) {
+    case 'barbaro':
+      return 'Grog';
+    case 'maga':
+      return 'Magnus';
+    case 'paladin':
+      return 'Arthur';
+    case 'arquera':
+      return 'Hunter';
+    default:
+      return 'Aventurero';
+  }
+}
+
 export function getBasePlayerStats(): PlayerStats {
   return { ...BASE_PLAYER_STATS };
 }
@@ -40,7 +55,7 @@ export function createPlayer(map: DungeonMap, clase: PlayerClassId): Player {
   const startY = map.height - 1;
 
   return {
-    nombre: 'Aventurero',
+    nombre: getPlayerNameByClass(clase),
     clase,
     x: startX,
     y: startY,
