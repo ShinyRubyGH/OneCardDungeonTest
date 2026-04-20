@@ -71,6 +71,10 @@ export function canUpgradeStat(player: Player, stat: PlayerStatKey): boolean {
     return false;
   }
 
+  if (stat === 'vida') {
+    return player.mejorasDisponibles > 0 && player.vidaActual < player.stats.vida;
+  }
+
   return player.mejorasDisponibles > 0 && player.stats[stat] < PLAYER_MAX_STAT;
 }
 
@@ -79,15 +83,23 @@ export function upgradePlayerStat(player: Player, stat: PlayerStatKey): Player {
     return player;
   }
 
+  if (stat === 'vida') {
+    return {
+      ...player,
+      vidaActual: Math.min(player.stats.vida, player.vidaActual + 1),
+      mejorasAplicadas: {
+        ...player.mejorasAplicadas,
+        vida: player.mejorasAplicadas.vida + 1
+      },
+      mejorasDisponibles: player.mejorasDisponibles - 1
+    };
+  }
+
   const upgradedStatValue = clampStat(player.stats[stat] + 1);
-  const upgradedCurrentHealth =
-    stat === 'vida'
-      ? Math.min(upgradedStatValue, player.vidaActual + 1)
-      : player.vidaActual;
 
   return {
     ...player,
-    vidaActual: upgradedCurrentHealth,
+    vidaActual: player.vidaActual,
     stats: {
       ...player.stats,
       [stat]: upgradedStatValue

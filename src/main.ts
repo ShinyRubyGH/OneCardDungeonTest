@@ -86,12 +86,14 @@ function updateNextPhaseButtonState(): void {
     return;
   }
 
+  nextPhaseBtn.style.display = currentPhase === 'energy' ? 'none' : '';
+
   let label = 'Finalizar turno';
   let disabled = false;
 
   if (currentPhase === 'energy') {
     label = 'Confirmar energia';
-    disabled = !isEnergyAssignmentComplete(turnResources);
+    disabled = true;
   } else if (currentPhase === 'adventurer') {
     label = 'Finalizar turno';
   } else if (currentPhase === 'monster-move') {
@@ -148,7 +150,7 @@ function loadLevel(level: number): void {
   renderCurrentState();
 
   console.log('Nivel actual:', nivelActual);
-  console.log('Fase actual:', currentPhase);
+  console.log('Fase:', currentPhase);
   console.log('Cara activa:', currentMap.side);
   console.log('Invertido:', currentMap.inverted);
   console.log('Casillas de inicio:', getStartTiles(currentMap));

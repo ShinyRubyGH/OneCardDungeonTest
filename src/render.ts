@@ -85,6 +85,25 @@ function getEnemyMarkerLabel(enemy: SpawnedEnemy, enemies: SpawnedEnemy[]): stri
   return `${getEnemyInitial(enemy.nombre)}${getEnemyIdentityNumber(enemy, enemies)}`;
 }
 
+function getEnemyArtworkPath(enemy: { id: string; nombre: string }): string {
+  switch (enemy.id) {
+    case 'spider':
+      return './src/assets/enemies/spider.svg';
+    case 'skeleton':
+      return './src/assets/enemies/skeleton.svg';
+    case 'ogre':
+      return './src/assets/enemies/ogre.svg';
+    case 'demon':
+      return './src/assets/enemies/demon.svg';
+    default:
+      return './src/assets/enemies/generic.svg';
+  }
+}
+
+function getPlayerArtworkPath(): string {
+  return './src/assets/adventurer.svg';
+}
+
 function createTileElement(
   tile: Tile,
   player: Player | null,
@@ -93,6 +112,20 @@ function createTileElement(
 ): HTMLDivElement {
   const element = document.createElement('div');
   element.className = `tile ${tile.type}`;
+  const hasPlayer = isPlayerAtPosition(player, tile.x, tile.y);
+
+  if (tile.type === 'stairs') {
+    element.classList.add(tile.y <= 2 ? 'stairs-top' : 'stairs_alreves');
+  }
+
+  if (enemy) {
+    element.classList.add('tile-has-enemy');
+  }
+
+  if (hasPlayer) {
+    element.classList.add('tile-has-player');
+  }
+
   element.dataset.x = String(tile.x);
   element.dataset.y = String(tile.y);
 
@@ -105,19 +138,21 @@ function createTileElement(
 
   if (enemy) {
     const enemyMarker = document.createElement('button');
-    enemyMarker.className = 'enemy-marker';
+    enemyMarker.className = 'enemy-marker board-token';
     enemyMarker.type = 'button';
-    enemyMarker.textContent = enemyMarkerLabel ?? getEnemyInitial(enemy.nombre);
+
+    const label = enemyMarkerLabel ?? getEnemyInitial(enemy.nombre);
+    enemyMarker.innerHTML = `<span class="token-text">${label}</span>`;
     enemyMarker.dataset.enemyX = String(enemy.x);
     enemyMarker.dataset.enemyY = String(enemy.y);
     enemyMarker.title = `${enemy.nombre} | Vida: ${enemy.vidaActual}/${enemy.stats.vida} | Velocidad: ${enemy.stats.velocidad} | Ataque: ${enemy.stats.ataque} | Defensa: ${enemy.stats.defensa} | Alcance: ${enemy.stats.alcance}`;
     element.appendChild(enemyMarker);
   }
 
-  if (isPlayerAtPosition(player, tile.x, tile.y)) {
+  if (hasPlayer) {
     const playerMarker = document.createElement('div');
-    playerMarker.className = 'player-marker';
-    playerMarker.textContent = 'P';
+    playerMarker.className = 'player-marker board-token';
+    playerMarker.innerHTML = '<span class="token-text">P</span>';
     playerMarker.title = `${player?.nombre} | Vida: ${player?.vidaActual}/${player?.stats.vida} | Velocidad: ${player?.stats.velocidad} | Daño: ${player?.stats.dano} | Defensa: ${player?.stats.defensa} | Alcance: ${player?.stats.alcance}`;
     element.appendChild(playerMarker);
   }
@@ -170,6 +205,47 @@ function createEnemyStatRow(label: string, stat: string, value: number): string 
   `;
 }
 
+function createEnergyAssignmentBlock(
+  label: string,
+  stat: EnergyStatKey,
+  assignedValue: number | null,
+  canAssign: boolean
+): string {
+  const isAssigned = assignedValue !== null;
+  const icon = getStatIcon(stat);
+  const pipMap: Record<number, number[]> = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8]
+  };
+
+  const diePips = isAssigned
+    ? (pipMap[assignedValue as number] ?? pipMap[1])
+        .map(position => `<span class="assignment-die-pip assignment-die-pip-${position}"></span>`)
+        .join('')
+    : '';
+
+  return `
+    <div class="assignment-block">
+      <div class="assignment-icon" aria-hidden="true">${icon}</div>
+      <div class="assignment-die ${isAssigned ? 'assigned' : 'unassigned'}" aria-label="${isAssigned ? `Dado asignado: ${assignedValue}` : 'Sin dado asignado'}">
+        ${isAssigned ? `<span class="assignment-die-pips" aria-hidden="true">${diePips}</span>` : '<span class="assignment-die-empty">-</span>'}
+      </div>
+      <button
+        class="assign-btn"
+        type="button"
+        data-energy-stat="${stat}"
+        ${isAssigned || !canAssign ? 'disabled' : ''}
+      >
+        Asignar
+      </button>
+    </div>
+  `;
+}
+
 function createPlayerHealthBlock(player: Player): string {
   const healthPercent = Math.max(0, Math.min(100, (player.vidaActual / player.stats.vida) * 100));
 
@@ -182,6 +258,21 @@ function createPlayerHealthBlock(player: Player): string {
       <div class="player-health-value">${player.vidaActual} / ${player.stats.vida}</div>
       <div class="player-health-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${player.stats.vida}" aria-valuenow="${player.vidaActual}">
         <span style="width: ${healthPercent}%;"></span>
+      </div>
+    </section>
+  `;
+}
+
+function createPlayerReferenceBlock(player: Player): string {
+  return `
+    <section class="player-reference-artwork-shell" aria-label="Referencia del aventurero">
+      <img
+        class="player-reference-artwork"
+        src="${getPlayerArtworkPath()}"
+        alt="Referencia del aventurero"
+      />
+      <div class="player-reference-caption">
+        ${player.nombre}
       </div>
     </section>
   `;
@@ -209,6 +300,21 @@ function renderDiceFaces(dice: number[], selectedDieIndex: number | null): strin
     return '<div class="dice-empty">Aún no se han tirado los dados.</div>';
   }
 
+  const pipMap: Record<number, number[]> = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8]
+  };
+
+  function renderPips(value: number): string {
+    const positions = pipMap[value] ?? pipMap[1];
+
+    return positions.map(position => `<span class="die-pip die-pip-${position}"></span>`).join('');
+  }
+
   return `
     <div class="dice-list">
       ${dice
@@ -218,38 +324,13 @@ function renderDiceFaces(dice: number[], selectedDieIndex: number | null): strin
               class="die-face ${selectedDieIndex === index ? 'selected' : ''}"
               type="button"
               data-die-index="${index}"
-              title="Dado ${index + 1}"
+              title="Dado ${index + 1}: ${value}"
             >
-              ${value}
+              <span class="die-pips" aria-hidden="true">${renderPips(value)}</span>
             </button>
           `
         )
         .join('')}
-    </div>
-  `;
-}
-
-function createAssignmentRow(
-  label: string,
-  stat: EnergyStatKey,
-  assignedValue: number | null
-): string {
-  const isAssigned = assignedValue !== null;
-
-  return `
-    <div class="assignment-row">
-      <div class="assignment-info">
-        <span class="entity-stat-label">${label}</span>
-        <span class="entity-stat-value">${isAssigned ? assignedValue : '-'}</span>
-      </div>
-      <button
-        class="assign-btn"
-        type="button"
-        data-energy-stat="${stat}"
-        ${isAssigned ? 'disabled' : ''}
-      >
-        Asignar
-      </button>
     </div>
   `;
 }
@@ -273,8 +354,6 @@ function renderPhasePanel(
     const phaseCard = document.createElement('section');
     phaseCard.className = 'entity-card phase-card';
     phaseCard.innerHTML = `
-      <div class="phase-section-title">Fase actual</div>
-
       <div class="entity-card-header">
         <span class="entity-badge player-badge">Turno</span>
         <h3>${getPhaseLabel(currentPhase)}</h3>
@@ -290,38 +369,31 @@ function renderPhasePanel(
                 Tirar dados
               </button>
             </div>
-          `
-          : ''
-      }
 
-      ${renderDiceFaces(
-        turnResources?.energyDice ?? [],
-        turnResources?.selectedDieIndex ?? null
-      )}
-
-      ${
-        currentPhase === 'energy'
-          ? `
-            <div class="assignment-panel">
-              ${createAssignmentRow(
-                'Velocidad',
-                'velocidad',
-                turnResources?.assignedEnergy.velocidad ?? null
-              )}
-              ${createAssignmentRow(
-                'Ataque',
-                'ataque',
-                turnResources?.assignedEnergy.ataque ?? null
-              )}
-              ${createAssignmentRow(
-                'Defensa',
-                'defensa',
-                turnResources?.assignedEnergy.defensa ?? null
-              )}
+            <div class="phase-dice-wrap">
+              ${renderDiceFaces(turnResources?.energyDice ?? [], turnResources?.selectedDieIndex ?? null)}
             </div>
           `
           : ''
       }
+
+      ${
+        currentPhase === 'game-over'
+          ? `
+            <div class="phase-actions">
+              <button class="phase-btn phase-restart-btn" id="restart-game" type="button">
+                Reiniciar partida (F5)
+              </button>
+            </div>
+          `
+          : ''
+      }
+
+      <div class="assignment-panel">
+        ${createEnergyAssignmentBlock('Velocidad', 'velocidad', turnResources?.assignedEnergy.velocidad ?? null, currentPhase === 'energy')}
+        ${createEnergyAssignmentBlock('Ataque', 'ataque', turnResources?.assignedEnergy.ataque ?? null, currentPhase === 'energy')}
+        ${createEnergyAssignmentBlock('Defensa', 'defensa', turnResources?.assignedEnergy.defensa ?? null, currentPhase === 'energy')}
+      </div>
     `;
     phasePanel.appendChild(phaseCard);
 
@@ -351,6 +423,13 @@ function renderPhasePanel(
         });
       });
     }
+
+    if (currentPhase === 'game-over') {
+      const restartBtn = phaseCard.querySelector<HTMLButtonElement>('#restart-game');
+      restartBtn?.addEventListener('click', () => {
+        window.location.reload();
+      });
+    }
   }
 
 }
@@ -358,7 +437,6 @@ function renderPhasePanel(
 function renderPlayerPanel(
   playerPanel: HTMLElement,
   player: Player | null,
-  baseEnemy: EnemyDefinition | undefined,
   turnResources?: TurnResources,
   onUpgradeStat?: (stat: PlayerStatKey) => void
 ): void {
@@ -383,10 +461,12 @@ function renderPlayerPanel(
         <h3>${player.nombre}</h3>
       </div>
 
+      ${createPlayerReferenceBlock(player)}
+
       ${createPlayerHealthBlock(player)}
 
       <div class="entity-stats">
-        ${createStatRow('Vida', 'vida', player.stats.vida, 0, undefined, canUseUpgrade && player.stats.vida < 6)}
+        ${createStatRow('Vida', 'vida', player.stats.vida, 0, undefined, canUseUpgrade && player.vidaActual < player.stats.vida)}
         ${createStatRow('Velocidad', 'velocidad', player.stats.velocidad, velocidadBonus, turnResources?.velocidadDisponible, canUseUpgrade && player.stats.velocidad < 6)}
         ${createStatRow('Daño', 'dano', player.stats.dano, ataqueBonus, turnResources?.ataqueDisponible, canUseUpgrade && player.stats.dano < 6)}
         ${createStatRow('Defensa', 'defensa', player.stats.defensa, defensaBonus, undefined, canUseUpgrade && player.stats.defensa < 6)}
@@ -406,37 +486,59 @@ function renderPlayerPanel(
 
     playerPanel.appendChild(playerCard);
   }
-
-  if (baseEnemy) {
-    const enemyBaseCard = document.createElement('section');
-    enemyBaseCard.className = 'entity-card enemy-reference-card';
-    enemyBaseCard.innerHTML = `
-      <div class="entity-card-header">
-        <span class="entity-badge enemy-badge">Referencia</span>
-        <h3>Enemigo del nivel: ${baseEnemy.nombre}</h3>
-      </div>
-
-      <div class="entity-stats">
-        ${createEnemyStatRow('Vida base', 'vida', baseEnemy.stats.vida)}
-        ${createEnemyStatRow('Velocidad base', 'velocidad', baseEnemy.stats.velocidad)}
-        ${createEnemyStatRow('Ataque base', 'ataque', baseEnemy.stats.ataque)}
-        ${createEnemyStatRow('Defensa base', 'defensa', baseEnemy.stats.defensa)}
-        ${createEnemyStatRow('Alcance base', 'alcance', baseEnemy.stats.alcance)}
-      </div>
-    `;
-
-    playerPanel.appendChild(enemyBaseCard);
-  }
 }
 
-function renderEnemiesBelowMap(container: HTMLElement, enemies: SpawnedEnemy[]): void {
+function renderEnemyReferencePanel(
+  enemyPanel: HTMLElement,
+  baseEnemy: EnemyDefinition | undefined
+): void {
+  enemyPanel.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.className = 'panel-block-title';
+  title.textContent = 'Enemigos';
+  enemyPanel.appendChild(title);
+
+  if (!baseEnemy) {
+    return;
+  }
+
+  const enemyBaseCard = document.createElement('section');
+  enemyBaseCard.className = 'entity-card enemy-reference-card';
+  enemyBaseCard.innerHTML = `
+    <div class="entity-card-header">
+      <span class="entity-badge enemy-badge">Referencia</span>
+      <h3>Enemigo del nivel: ${baseEnemy.nombre}</h3>
+    </div>
+
+    <div class="enemy-artwork-shell enemy-artwork-shell-reference">
+      <img
+        class="enemy-artwork"
+        src="${getEnemyArtworkPath(baseEnemy)}"
+        alt="${baseEnemy.nombre}"
+      />
+    </div>
+
+    <div class="entity-stats">
+      ${createEnemyStatRow('Vida base', 'vida', baseEnemy.stats.vida)}
+      ${createEnemyStatRow('Velocidad base', 'velocidad', baseEnemy.stats.velocidad)}
+      ${createEnemyStatRow('Ataque base', 'ataque', baseEnemy.stats.ataque)}
+      ${createEnemyStatRow('Defensa base', 'defensa', baseEnemy.stats.defensa)}
+      ${createEnemyStatRow('Alcance base', 'alcance', baseEnemy.stats.alcance)}
+    </div>
+  `;
+
+  enemyPanel.appendChild(enemyBaseCard);
+}
+
+function renderEnemyListSection(enemies: SpawnedEnemy[]): HTMLElement {
   const section = document.createElement('section');
   section.className = 'enemy-section';
 
-  const title = document.createElement('h2');
-  title.className = 'enemy-section-title';
-  title.textContent = 'Enemigos';
-  section.appendChild(title);
+  const listTitle = document.createElement('h2');
+  listTitle.className = 'enemy-section-title';
+  listTitle.textContent = 'Enemigos';
+  section.appendChild(listTitle);
 
   const enemiesWrapper = document.createElement('div');
   enemiesWrapper.className = 'enemy-list';
@@ -463,7 +565,7 @@ function renderEnemiesBelowMap(container: HTMLElement, enemies: SpawnedEnemy[]):
   }
 
   section.appendChild(enemiesWrapper);
-  container.appendChild(section);
+  return section;
 }
 
 export function renderMap(
@@ -484,6 +586,7 @@ export function renderMap(
 
   const boardGrid = document.createElement('div');
   boardGrid.className = 'board-grid';
+  boardGrid.classList.add(map.level % 2 === 0 ? 'level-even' : 'level-odd');
 
   for (const row of map.tiles) {
     for (const tile of row) {
@@ -531,15 +634,24 @@ export function renderMap(
   }
 
   container.appendChild(boardGrid);
-  renderEnemiesBelowMap(container, enemies);
+
+  const enemyPanel = document.getElementById('enemy-panel');
+  if (enemyPanel instanceof HTMLElement) {
+    const baseEnemy = getEnemyByLevel(map.level);
+    renderEnemyReferencePanel(enemyPanel, baseEnemy);
+  }
+
+  const enemyListCenter = document.getElementById('enemy-list-center');
+  if (enemyListCenter instanceof HTMLElement) {
+    enemyListCenter.innerHTML = '';
+    enemyListCenter.appendChild(renderEnemyListSection(enemies));
+  }
 
   const playerPanel = document.getElementById('player-panel');
   if (playerPanel instanceof HTMLElement) {
-    const baseEnemy = getEnemyByLevel(map.level);
     renderPlayerPanel(
       playerPanel,
       player,
-      baseEnemy,
       turnResources,
       onUpgradeStat
     );

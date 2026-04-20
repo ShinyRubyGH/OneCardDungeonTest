@@ -14,23 +14,26 @@
 
   <section class="panel">
     <div class="layout">
-      <div class="player-column">
-        <aside id="player-panel" class="sidebar"></aside>
+      <div class="enemy-column">
+        <div id="enemy-list-center" class="enemy-list-center"></div>
+        <aside id="enemy-panel" class="sidebar"></aside>
       </div>
 
       <div class="map-column">
         <div id="game-board" class="game-stage"></div>
+        <aside id="phase-panel" class="sidebar"></aside>
       </div>
 
       <div class="phase-column">
-        <aside id="phase-panel" class="sidebar"></aside>
-        <div class="board-actions board-actions-side">
+        <aside id="player-panel" class="sidebar"></aside>
+        <div id="board-actions-center" class="board-actions board-actions-center">
           <button id="next-phase" class="btn-next-phase" type="button">Finalizar turno</button>
           <button id="next-level" class="btn-next-level" type="button">Pasar nivel</button>
         </div>
       </div>
     </div>
   </section>
+  </main>
 
   <script type="module" src="./dist/main.js"></script>
 </body>
