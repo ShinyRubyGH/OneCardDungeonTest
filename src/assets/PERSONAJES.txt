@@ -1,0 +1,63 @@
+PERSONAJES JUGABLES DISPONIBLES
+================================
+
+Se han creado los siguientes assets/iconos de personajes para usarlos en el juego:
+
+1. ADVENTURER (adventurer.svg) - Aventurero original
+   - Equilibrio entre stats
+   - Espada como arma base
+   - Rol: Guerrero versátil
+
+2. MAGE (mage.svg) - Mago/Hechicero
+   - Ventaja en daño mágico
+   - Túnica púrpura con varita
+   - Ojos mágicos dorados
+   - Rol: Ofensiva a distancia
+
+3. PALADIN (paladin.svg) - Paladín/Caballero
+   - Armadura pesada metálica
+   - Casco y cruz en el pecho
+   - Espada
+   - Rol: Tanque con defensa alta
+
+4. ROGUE (rogue.svg) - Pícaro/Ladrón
+   - Ropa oscura y ágil
+   - Antifaz
+   - Doble daga
+   - Rol: Alta velocidad y daño crítico
+
+5. RANGER (ranger.svg) - Ranger/Cazador
+   - Traje de cuero
+   - Arco y flechas (carcaj)
+   - Sombrero de ranger
+   - Rol: Alcance medio y versatilidad
+
+6. BARBARIAN (barbarian.svg) - Bárbaro
+   - Muy musculoso
+   - Hacha grande
+   - Sin armadura (poder bruto)
+   - Rol: Alto daño físico
+
+7. CLERIC (cleric.svg) - Clérigo/Sacerdote
+   - Túnica blanca
+   - Halo dorado
+   - Cruz dorada
+   - Rosario
+   - Rol: Curación y soporte
+
+UBICACIÓN DE ASSETS
+===================
+Todos los archivos SVG se encuentran en:
+./src/assets/[nombre_personaje].svg
+
+PARA USAR EN EL JUEGO
+====================
+1. Actualizar el código del jugador para incluir la selección de personaje
+2. Cada personaje puede tener stats iniciales diferentes
+3. Los iconos usan viewBox="0 0 96 96" para escalabilidad
+4. Estilo pixel art coherente con el resto del juego
+
+EJEMPLO DE USO
+==============
+<img src="./src/assets/mage.svg" alt="Mago" />
+<img src="./src/assets/paladin.svg" alt="Paladín" />

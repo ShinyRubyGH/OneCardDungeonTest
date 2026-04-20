@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" shape-rendering="crispEdges">
+  <rect width="96" height="96" fill="#0b0f18"/>
+  <!-- Cabello/Cuernos decorativos -->
+  <rect x="26" y="12" width="12" height="12" fill="#8b4513"/>
+  <rect x="58" y="12" width="12" height="12" fill="#8b4513"/>
+  <!-- Cabeza musculosa -->
+  <rect x="28" y="24" width="40" height="16" fill="#d8a372"/>
+  <!-- Barba -->
+  <rect x="30" y="36" width="36" height="4" fill="#8b4513"/>
+  <!-- Cuerpo (muy musculoso) -->
+  <rect x="18" y="40" width="60" height="36" fill="#8b6914"/>
+  <!-- Músculos del pecho -->
+  <rect x="22" y="44" width="20" height="20" fill="#a8825c"/>
+  <rect x="54" y="44" width="20" height="20" fill="#a8825c"/>
+  <!-- División entre músculos -->
+  <rect x="46" y="44" width="4" height="20" fill="#8b6914"/>
+  <!-- Brazos muy grandes -->
+  <rect x="12" y="40" width="12" height="36" fill="#a8825c"/>
+  <rect x="72" y="40" width="12" height="36" fill="#a8825c"/>
+  <!-- Manos grandes -->
+  <rect x="10" y="72" width="6" height="6" fill="#d8a372"/>
+  <rect x="80" y="72" width="6" height="6" fill="#d8a372"/>
+  <!-- Hacha grande en mano -->
+  <rect x="8" y="56" width="6" height="24" fill="#696969"/>
+  <rect x="4" y="52" width="14" height="8" fill="#c0c0c0"/>
+  <!-- Cinturón simple -->
+  <rect x="14" y="72" width="68" height="4" fill="#5c3a1f"/>
+  <!-- Pantalones de piel -->
+  <rect x="20" y="76" width="56" height="8" fill="#5c3a1f"/>
+  <!-- Botas -->
+  <rect x="16" y="84" width="64" height="8" fill="#1f2740"/>
+</svg>
