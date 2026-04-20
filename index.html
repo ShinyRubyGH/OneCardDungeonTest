@@ -6,7 +6,45 @@
   <title>One Card Dungeon - Mapa</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
+<body class="is-on-title">
+  <div id="title-screen" class="title-screen" aria-label="Pantalla de titulo">
+    <div class="title-screen-card">
+      <p class="title-kicker">Roguelike de bolsillo</p>
+      <h1 class="title-game-name">One Card Dungeon</h1>
+      <div class="title-sword-divider" aria-hidden="true">
+        <span class="title-sword-guard"></span>
+        <span class="title-sword-blade"></span>
+      </div>
+
+      <section class="title-hero-stage" aria-hidden="true">
+        <span class="title-hero-backglow"></span>
+        <img class="title-hero-image" src="./src/assets/Incio.png" alt="" />
+        <span class="title-hero-torchglow"></span>
+      </section>
+
+      <p class="title-tagline">Entra en la mazmorra. Sobrevive 12 niveles.</p>
+
+      <div class="title-actions">
+        <button id="title-start" class="title-btn title-btn-start" type="button">Comenzar aventura</button>
+        <button id="title-load" class="title-btn" type="button">Cargar partida</button>
+        <button id="title-options" class="title-btn" type="button">Opciones</button>
+        <button id="title-tutorial" class="title-btn" type="button">Tutorial</button>
+      </div>
+
+      <section id="title-options-panel" class="title-options-panel" aria-hidden="true">
+        <h2 class="title-options-title">Opciones</h2>
+        <label class="title-option-row" for="title-volume">
+          Volumen musica
+          <input id="title-volume" type="range" min="0" max="1" step="0.05" value="0.55" />
+        </label>
+        <label class="title-option-row" for="title-muted">
+          <input id="title-muted" type="checkbox" />
+          Silenciar musica
+        </label>
+      </section>
+    </div>
+  </div>
+
   <main class="app">
     <header class="topbar">
       <p id="level-indicator" class="level-indicator">Nivel 1</p>
@@ -29,10 +67,26 @@
         <div id="board-actions-center" class="board-actions board-actions-center">
           <button id="next-phase" class="btn-next-phase" type="button">Finalizar turno</button>
           <button id="next-level" class="btn-next-level" type="button">Pasar nivel</button>
+          <button id="save-game" class="btn-next-level" type="button">Guardar partida</button>
         </div>
       </div>
     </div>
   </section>
+
+  <div class="in-game-options" id="in-game-options">
+    <button id="game-options-open" class="in-game-options-open" type="button">Opciones</button>
+    <section id="game-options-panel" class="in-game-options-panel" aria-hidden="true">
+      <h2 class="in-game-options-title">Musica</h2>
+      <label class="in-game-option-row" for="game-volume">
+        Volumen
+        <input id="game-volume" type="range" min="0" max="1" step="0.05" value="0.55" />
+      </label>
+      <label class="in-game-option-row" for="game-muted">
+        <input id="game-muted" type="checkbox" />
+        Silenciar
+      </label>
+    </section>
+  </div>
 
   <button id="tutorial-open" class="tutorial-fab" type="button">Tutorial</button>
 
@@ -43,6 +97,8 @@
       <div id="character-options" class="character-options"></div>
     </div>
   </div>
+
+  </main>
 
   <div id="tutorial-modal" class="tutorial-modal" aria-hidden="true">
     <div class="tutorial-card" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
@@ -58,7 +114,6 @@
       </div>
     </div>
   </div>
-  </main>
 
   <script type="module" src="./dist/main.js"></script>
 </body>

@@ -236,6 +236,24 @@ function createEnemyHealthBlock(enemy) {
     </section>
   `;
 }
+function createCompactEnemyStatChip(stat, value) {
+    return `
+    <div class="enemy-stat-chip" aria-label="${stat}: ${value}">
+      <span class="enemy-stat-chip-icon" aria-hidden="true">${getStatIcon(stat)}</span>
+      <span class="enemy-stat-chip-value">${value}</span>
+    </div>
+  `;
+}
+function createCompactEnemyStatsBar(enemyStats) {
+    return `
+    <div class="enemy-stats-compact" aria-label="Estadisticas del enemigo">
+      ${createCompactEnemyStatChip('velocidad', enemyStats.velocidad)}
+      ${createCompactEnemyStatChip('ataque', enemyStats.ataque)}
+      ${createCompactEnemyStatChip('defensa', enemyStats.defensa)}
+      ${createCompactEnemyStatChip('alcance', enemyStats.alcance)}
+    </div>
+  `;
+}
 function renderDiceFaces(dice, selectedDieIndex) {
     if (!dice.length) {
         return '<div class="dice-empty">Aún no se han tirado los dados.</div>';
@@ -432,21 +450,21 @@ function renderEnemyReferencePanel(enemyPanel, baseEnemy) {
       <h3>Enemigo del nivel: ${baseEnemy.nombre}</h3>
     </div>
 
-    <div class="enemy-artwork-shell enemy-artwork-shell-reference">
-      <img
-        class="enemy-artwork"
-        src="${getEnemyArtworkPath(baseEnemy)}"
-        alt="${baseEnemy.nombre}"
-      />
+    <div class="enemy-compact-header">
+      <div class="enemy-artwork-shell enemy-artwork-shell-compact">
+        <img
+          class="enemy-artwork"
+          src="${getEnemyArtworkPath(baseEnemy)}"
+          alt="${baseEnemy.nombre}"
+        />
+      </div>
+      <div class="enemy-compact-life" aria-label="Vida base">
+        <span aria-hidden="true">❤</span>
+        <strong>${baseEnemy.stats.vida}</strong>
+      </div>
     </div>
 
-    <div class="entity-stats">
-      ${createEnemyStatRow('Vida base', 'vida', baseEnemy.stats.vida)}
-      ${createEnemyStatRow('Velocidad base', 'velocidad', baseEnemy.stats.velocidad)}
-      ${createEnemyStatRow('Ataque base', 'ataque', baseEnemy.stats.ataque)}
-      ${createEnemyStatRow('Defensa base', 'defensa', baseEnemy.stats.defensa)}
-      ${createEnemyStatRow('Alcance base', 'alcance', baseEnemy.stats.alcance)}
-    </div>
+    ${createCompactEnemyStatsBar(baseEnemy.stats)}
   `;
     enemyPanel.appendChild(enemyBaseCard);
 }
