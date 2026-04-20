@@ -46,6 +46,10 @@ const TUTORIAL_STEPS = [
         visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">🗡</span><span class="tutorial-shape">-</span><span class="tutorial-shape">🛡</span><span class="tutorial-shape">=</span><span class="tutorial-shape">❤</span></div>'
     },
     {
+        text: 'Sistema de defensa: suma todos los daños de los enemigos y divide por tu defensa. El resultado es tu reducción de vida. Ej: (10+8)÷2 = 9 daño.',
+        visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">A</span><span class="tutorial-shape">+</span><span class="tutorial-shape">B</span><span class="tutorial-shape">÷</span><span class="tutorial-shape">D</span></div>'
+    },
+    {
         text: 'Si terminas el nivel recibes una mejora. Vida cura +1 hasta su tope.',
         visual: '<div class="tutorial-shape-row"><span class="tutorial-shape">+1</span><span class="tutorial-shape">❤</span><span class="tutorial-shape">MAX 6</span></div>'
     },
