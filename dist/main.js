@@ -79,7 +79,9 @@ const TUTORIAL_STEPS = [
 let tutorialIndex = 0;
 let gameStarted = false;
 const TITLE_THEME_VOLUME_STORAGE_KEY = 'title-theme-volume';
+const BGM_MUTED_STORAGE_KEY = 'bgm-muted';
 const DEFAULT_TITLE_THEME_VOLUME = 0.55;
+const DEFAULT_BGM_MUTED = false;
 const TITLE_THEME_PATH = './src/Music/xDeviruchi - Title Theme .wav';
 const CHARACTER_SELECTION_THEME_PATH = './src/Music/xDeviruchi - And The Journey Begins .wav';
 const LEVEL_COMPLETE_THEME_PATH = './src/Music/xDeviruchi - Take some rest and eat some food!.wav';
@@ -133,9 +135,30 @@ function saveTitleThemeVolume(volume) {
         // Ignorado: localStorage puede estar bloqueado por el navegador.
     }
 }
+function loadSavedBgmMuted() {
+    try {
+        const savedValue = window.localStorage.getItem(BGM_MUTED_STORAGE_KEY);
+        if (savedValue === null) {
+            return DEFAULT_BGM_MUTED;
+        }
+        return savedValue === 'true';
+    }
+    catch {
+        return DEFAULT_BGM_MUTED;
+    }
+}
+function saveBgmMuted(muted) {
+    try {
+        window.localStorage.setItem(BGM_MUTED_STORAGE_KEY, String(muted));
+    }
+    catch {
+        // Ignorado: localStorage puede estar bloqueado por el navegador.
+    }
+}
 const bgmAudio = new Audio(TITLE_THEME_PATH);
 bgmAudio.loop = true;
 bgmAudio.volume = loadSavedTitleThemeVolume();
+bgmAudio.muted = loadSavedBgmMuted();
 let currentBgmPath = TITLE_THEME_PATH;
 let unusedLevelThemePaths = [...LEVEL_THEME_PATHS];
 function playBgm(trackPath) {
@@ -198,11 +221,13 @@ function setBgmVolume(volume) {
     saveTitleThemeVolume(nextVolume);
     if (nextVolume > 0) {
         bgmAudio.muted = false;
+        saveBgmMuted(false);
     }
     syncMusicControlValues();
 }
 function setBgmMuted(muted) {
     bgmAudio.muted = muted;
+    saveBgmMuted(muted);
     syncMusicControlValues();
 }
 function initInGameOptions() {
@@ -665,14 +690,14 @@ function updateNextPhaseButtonState() {
     nextPhaseBtn.textContent = label;
     nextPhaseBtn.disabled = disabled;
 }
-function renderCurrentState() {
+function renderCurrentState(motionState) {
     if (levelIndicator instanceof HTMLElement) {
         const classLabel = getPlayerClassOption(player.clase).nombre;
         levelIndicator.textContent = `Nivel ${currentMap.level} | ${classLabel}`;
     }
     const showReachAssignment = player.clase === 'arquera' &&
         (!classAbilityState.archerUsedInLevel || turnResources.assignedEnergy.alcance !== null);
-    renderMap(currentMap, boardElement, currentEnemies, player, handleUpgradeStat, currentPhase, turnResources, showReachAssignment, getClassAbilityAction(), handleRollEnergyDice, handleSelectEnergyDie, handleAssignEnergyDie, handleUseClassAbility, handleMovePlayer, handleAttackEnemy);
+    renderMap(currentMap, boardElement, currentEnemies, player, handleUpgradeStat, currentPhase, turnResources, showReachAssignment, getClassAbilityAction(), handleRollEnergyDice, handleSelectEnergyDie, handleAssignEnergyDie, handleUseClassAbility, handleMovePlayer, handleAttackEnemy, motionState);
     updateNextPhaseButtonState();
     updateNextLevelButtonState();
     updateSaveButtonState();
@@ -793,9 +818,12 @@ function handleMovePlayer(targetX, targetY) {
         return;
     }
     const result = movePlayer(currentMap, player, currentEnemies, turnResources, targetX, targetY);
+    const motionState = {
+        player: { x: player.x, y: player.y }
+    };
     player = result.player;
     turnResources = result.turn;
-    renderCurrentState();
+    renderCurrentState(motionState);
 }
 function handleAttackEnemy(enemyX, enemyY) {
     if (currentPhase !== 'adventurer') {
@@ -834,9 +862,12 @@ function advancePhase() {
     }
     if (currentPhase === 'adventurer') {
         currentPhase = getNextPhase(currentPhase);
+        const motionState = {
+            enemies: currentEnemies.map(enemy => ({ x: enemy.x, y: enemy.y }))
+        };
         currentEnemies = resolveMonsterMovementPhase(currentMap, player, currentEnemies);
         currentPhase = getNextPhase(currentPhase);
-        renderCurrentState();
+        renderCurrentState(motionState);
         return;
     }
     if (currentPhase === 'monster-attack') {

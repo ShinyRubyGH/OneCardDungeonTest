@@ -583,6 +583,7 @@ body.is-on-title .app {
   height: auto;
   image-rendering: pixelated;
   object-fit: contain;
+  animation: player-artwork-idle 2.1s ease-in-out infinite;
 }
 
 .player-reference-caption {
@@ -1231,6 +1232,27 @@ body.is-on-title .app {
   box-shadow: 0 0 0 2px rgba(8, 10, 24, 0.9), 0 0 14px rgba(143, 255, 97, 0.52);
 }
 
+.player-marker.token-sliding {
+  animation: player-token-slide 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.enemy-marker.token-sliding {
+  animation: player-token-slide 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes player-token-slide {
+  from {
+    transform: translate(
+      calc(-50% + (var(--slide-from-x, 0) * (var(--tile-size) + var(--gap)) * -1)),
+      calc(-50% + (var(--slide-from-y, 0) * (var(--tile-size) + var(--gap)) * -1))
+    );
+  }
+
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
 .enemy-section {
   width: min(100%, 520px);
   margin-top: 0;
@@ -1279,6 +1301,33 @@ body.is-on-title .app {
   height: auto;
   image-rendering: pixelated;
   object-fit: contain;
+  animation: enemy-artwork-idle 1.7s ease-in-out infinite;
+}
+
+@keyframes player-artwork-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 0 rgba(120, 255, 164, 0));
+  }
+
+  50% {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 4px 10px rgba(120, 255, 164, 0.24));
+  }
+}
+
+@keyframes enemy-artwork-idle {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 101, 130, 0));
+  }
+
+  50% {
+    transform: translateY(-3px) scale(1.02);
+    filter: drop-shadow(0 3px 9px rgba(255, 101, 130, 0.26));
+  }
 }
 
 .board-actions {
