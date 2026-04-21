@@ -15,6 +15,11 @@ import { canAttackEnemy, canMoveTo, getMovementCost } from './player.js';
 import { getEnemyByLevel } from './enemy.js';
 import { getPlayerClassOption } from './constants.js';
 
+export type RenderMotionState = {
+  player?: { x: number; y: number } | null;
+  enemies?: Array<{ x: number; y: number } | null | undefined>;
+};
+
 type ClassAbilityAction = {
   label: string;
   description: string;
@@ -126,7 +131,9 @@ function createTileElement(
   tile: Tile,
   player: Player | null,
   enemy?: SpawnedEnemy,
-  enemyMarkerLabel?: string
+  enemyMarkerLabel?: string,
+  motionState?: RenderMotionState,
+  enemyIndex?: number
 ): HTMLDivElement {
   const element = document.createElement('div');
   element.className = `tile ${tile.type}`;
@@ -163,6 +170,19 @@ function createTileElement(
     enemyMarker.innerHTML = `<span class="token-text">${label}</span>`;
     enemyMarker.dataset.enemyX = String(enemy.x);
     enemyMarker.dataset.enemyY = String(enemy.y);
+
+    const previousEnemyPosition =
+      typeof enemyIndex === 'number' ? motionState?.enemies?.[enemyIndex] : undefined;
+
+    if (
+      previousEnemyPosition &&
+      (previousEnemyPosition.x !== enemy.x || previousEnemyPosition.y !== enemy.y)
+    ) {
+      enemyMarker.classList.add('token-sliding');
+      enemyMarker.style.setProperty('--slide-from-x', String(previousEnemyPosition.x - enemy.x));
+      enemyMarker.style.setProperty('--slide-from-y', String(previousEnemyPosition.y - enemy.y));
+    }
+
     enemyMarker.title = `${enemy.nombre} | Vida: ${enemy.vidaActual}/${enemy.stats.vida} | Velocidad: ${enemy.stats.velocidad} | Ataque: ${enemy.stats.ataque} | Defensa: ${enemy.stats.defensa} | Alcance: ${enemy.stats.alcance}`;
     element.appendChild(enemyMarker);
   }
@@ -171,6 +191,17 @@ function createTileElement(
     const playerMarker = document.createElement('div');
     playerMarker.className = 'player-marker board-token';
     playerMarker.innerHTML = '<span class="token-text">P</span>';
+
+    const previousPlayerPosition = motionState?.player;
+    if (
+      previousPlayerPosition &&
+      (previousPlayerPosition.x !== player?.x || previousPlayerPosition.y !== player?.y)
+    ) {
+      playerMarker.classList.add('token-sliding');
+      playerMarker.style.setProperty('--slide-from-x', String(previousPlayerPosition.x - (player?.x ?? previousPlayerPosition.x)));
+      playerMarker.style.setProperty('--slide-from-y', String(previousPlayerPosition.y - (player?.y ?? previousPlayerPosition.y)));
+    }
+
     playerMarker.title = `${player?.nombre} | Vida: ${player?.vidaActual}/${player?.stats.vida} | Velocidad: ${player?.stats.velocidad} | Daño: ${player?.stats.dano} | Defensa: ${player?.stats.defensa} | Alcance: ${player?.stats.alcance}`;
     element.appendChild(playerMarker);
   }
@@ -657,7 +688,8 @@ export function renderMap(
   onAssignEnergyDie?: (stat: EnergyStatKey) => void,
   onUseClassAbility?: () => void,
   onMovePlayer?: (x: number, y: number) => void,
-  onAttackEnemy?: (enemyX: number, enemyY: number) => void
+  onAttackEnemy?: (enemyX: number, enemyY: number) => void,
+  motionState?: RenderMotionState
 ): void {
   container.innerHTML = '';
 
@@ -667,9 +699,17 @@ export function renderMap(
 
   for (const row of map.tiles) {
     for (const tile of row) {
-      const enemy = findEnemyAtPosition(enemies, tile.x, tile.y);
+      const enemyIndex = enemies.findIndex(currentEnemy => currentEnemy.x === tile.x && currentEnemy.y === tile.y);
+      const enemy = enemyIndex >= 0 ? enemies[enemyIndex] : undefined;
       const enemyMarkerLabel = enemy ? getEnemyMarkerLabel(enemy, enemies) : undefined;
-      const tileElement = createTileElement(tile, player, enemy, enemyMarkerLabel);
+      const tileElement = createTileElement(
+        tile,
+        player,
+        enemy,
+        enemyMarkerLabel,
+        motionState,
+        enemyIndex >= 0 ? enemyIndex : undefined
+      );
 
       if (
         currentPhase === 'adventurer' &&

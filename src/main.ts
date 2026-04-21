@@ -25,6 +25,7 @@ import {
   setRolledDice
 } from './phase.js';
 import { renderMap } from './render.js';
+import type { RenderMotionState } from './render.js';
 import { PLAYER_CLASS_OPTIONS, getPlayerClassOption } from './constants.js';
 import type {
   DungeonMap,
@@ -132,7 +133,9 @@ let tutorialIndex = 0;
 let gameStarted = false;
 
 const TITLE_THEME_VOLUME_STORAGE_KEY = 'title-theme-volume';
+const BGM_MUTED_STORAGE_KEY = 'bgm-muted';
 const DEFAULT_TITLE_THEME_VOLUME = 0.55;
+const DEFAULT_BGM_MUTED = false;
 const TITLE_THEME_PATH = './src/Music/xDeviruchi - Title Theme .wav';
 const CHARACTER_SELECTION_THEME_PATH = './src/Music/xDeviruchi - And The Journey Begins .wav';
 const LEVEL_COMPLETE_THEME_PATH = './src/Music/xDeviruchi - Take some rest and eat some food!.wav';
@@ -203,9 +206,31 @@ function saveTitleThemeVolume(volume: number): void {
   }
 }
 
+function loadSavedBgmMuted(): boolean {
+  try {
+    const savedValue = window.localStorage.getItem(BGM_MUTED_STORAGE_KEY);
+    if (savedValue === null) {
+      return DEFAULT_BGM_MUTED;
+    }
+
+    return savedValue === 'true';
+  } catch {
+    return DEFAULT_BGM_MUTED;
+  }
+}
+
+function saveBgmMuted(muted: boolean): void {
+  try {
+    window.localStorage.setItem(BGM_MUTED_STORAGE_KEY, String(muted));
+  } catch {
+    // Ignorado: localStorage puede estar bloqueado por el navegador.
+  }
+}
+
 const bgmAudio = new Audio(TITLE_THEME_PATH);
 bgmAudio.loop = true;
 bgmAudio.volume = loadSavedTitleThemeVolume();
+bgmAudio.muted = loadSavedBgmMuted();
 
 let currentBgmPath = TITLE_THEME_PATH;
 let unusedLevelThemePaths: string[] = [...LEVEL_THEME_PATHS];
@@ -285,6 +310,7 @@ function setBgmVolume(volume: number): void {
 
   if (nextVolume > 0) {
     bgmAudio.muted = false;
+    saveBgmMuted(false);
   }
 
   syncMusicControlValues();
@@ -292,6 +318,7 @@ function setBgmVolume(volume: number): void {
 
 function setBgmMuted(muted: boolean): void {
   bgmAudio.muted = muted;
+  saveBgmMuted(muted);
   syncMusicControlValues();
 }
 
@@ -849,7 +876,7 @@ function updateNextPhaseButtonState(): void {
   nextPhaseBtn.disabled = disabled;
 }
 
-function renderCurrentState(): void {
+function renderCurrentState(motionState?: RenderMotionState): void {
   if (levelIndicator instanceof HTMLElement) {
     const classLabel = getPlayerClassOption(player.clase).nombre;
     levelIndicator.textContent = `Nivel ${currentMap.level} | ${classLabel}`;
@@ -874,7 +901,8 @@ function renderCurrentState(): void {
     handleAssignEnergyDie,
     handleUseClassAbility,
     handleMovePlayer,
-    handleAttackEnemy
+    handleAttackEnemy,
+    motionState
   );
 
   updateNextPhaseButtonState();
@@ -1031,9 +1059,13 @@ function handleMovePlayer(targetX: number, targetY: number): void {
     targetY
   );
 
+  const motionState: RenderMotionState = {
+    player: { x: player.x, y: player.y }
+  };
+
   player = result.player;
   turnResources = result.turn;
-  renderCurrentState();
+  renderCurrentState(motionState);
 }
 
 function handleAttackEnemy(enemyX: number, enemyY: number): void {
@@ -1084,9 +1116,14 @@ function advancePhase(): void {
 
   if (currentPhase === 'adventurer') {
     currentPhase = getNextPhase(currentPhase);
+
+    const motionState: RenderMotionState = {
+      enemies: currentEnemies.map(enemy => ({ x: enemy.x, y: enemy.y }))
+    };
+
     currentEnemies = resolveMonsterMovementPhase(currentMap, player, currentEnemies);
     currentPhase = getNextPhase(currentPhase);
-    renderCurrentState();
+    renderCurrentState(motionState);
     return;
   }
 

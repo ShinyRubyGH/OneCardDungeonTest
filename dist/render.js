@@ -83,7 +83,7 @@ function getPlayerArtworkPath(playerClass) {
             return './src/assets/adventurer.svg';
     }
 }
-function createTileElement(tile, player, enemy, enemyMarkerLabel) {
+function createTileElement(tile, player, enemy, enemyMarkerLabel, motionState, enemyIndex) {
     const element = document.createElement('div');
     element.className = `tile ${tile.type}`;
     const hasPlayer = isPlayerAtPosition(player, tile.x, tile.y);
@@ -112,6 +112,13 @@ function createTileElement(tile, player, enemy, enemyMarkerLabel) {
         enemyMarker.innerHTML = `<span class="token-text">${label}</span>`;
         enemyMarker.dataset.enemyX = String(enemy.x);
         enemyMarker.dataset.enemyY = String(enemy.y);
+        const previousEnemyPosition = typeof enemyIndex === 'number' ? motionState?.enemies?.[enemyIndex] : undefined;
+        if (previousEnemyPosition &&
+            (previousEnemyPosition.x !== enemy.x || previousEnemyPosition.y !== enemy.y)) {
+            enemyMarker.classList.add('token-sliding');
+            enemyMarker.style.setProperty('--slide-from-x', String(previousEnemyPosition.x - enemy.x));
+            enemyMarker.style.setProperty('--slide-from-y', String(previousEnemyPosition.y - enemy.y));
+        }
         enemyMarker.title = `${enemy.nombre} | Vida: ${enemy.vidaActual}/${enemy.stats.vida} | Velocidad: ${enemy.stats.velocidad} | Ataque: ${enemy.stats.ataque} | Defensa: ${enemy.stats.defensa} | Alcance: ${enemy.stats.alcance}`;
         element.appendChild(enemyMarker);
     }
@@ -119,6 +126,13 @@ function createTileElement(tile, player, enemy, enemyMarkerLabel) {
         const playerMarker = document.createElement('div');
         playerMarker.className = 'player-marker board-token';
         playerMarker.innerHTML = '<span class="token-text">P</span>';
+        const previousPlayerPosition = motionState?.player;
+        if (previousPlayerPosition &&
+            (previousPlayerPosition.x !== player?.x || previousPlayerPosition.y !== player?.y)) {
+            playerMarker.classList.add('token-sliding');
+            playerMarker.style.setProperty('--slide-from-x', String(previousPlayerPosition.x - (player?.x ?? previousPlayerPosition.x)));
+            playerMarker.style.setProperty('--slide-from-y', String(previousPlayerPosition.y - (player?.y ?? previousPlayerPosition.y)));
+        }
         playerMarker.title = `${player?.nombre} | Vida: ${player?.vidaActual}/${player?.stats.vida} | Velocidad: ${player?.stats.velocidad} | Daño: ${player?.stats.dano} | Defensa: ${player?.stats.defensa} | Alcance: ${player?.stats.alcance}`;
         element.appendChild(playerMarker);
     }
@@ -501,16 +515,17 @@ function renderEnemyListSection(enemies) {
     section.appendChild(enemiesWrapper);
     return section;
 }
-export function renderMap(map, container, enemies = [], player = null, onUpgradeStat, currentPhase, turnResources, showReachAssignment = false, classAbilityAction, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onUseClassAbility, onMovePlayer, onAttackEnemy) {
+export function renderMap(map, container, enemies = [], player = null, onUpgradeStat, currentPhase, turnResources, showReachAssignment = false, classAbilityAction, onRollEnergyDice, onSelectEnergyDie, onAssignEnergyDie, onUseClassAbility, onMovePlayer, onAttackEnemy, motionState) {
     container.innerHTML = '';
     const boardGrid = document.createElement('div');
     boardGrid.className = 'board-grid';
     boardGrid.classList.add(map.level % 2 === 0 ? 'level-even' : 'level-odd');
     for (const row of map.tiles) {
         for (const tile of row) {
-            const enemy = findEnemyAtPosition(enemies, tile.x, tile.y);
+            const enemyIndex = enemies.findIndex(currentEnemy => currentEnemy.x === tile.x && currentEnemy.y === tile.y);
+            const enemy = enemyIndex >= 0 ? enemies[enemyIndex] : undefined;
             const enemyMarkerLabel = enemy ? getEnemyMarkerLabel(enemy, enemies) : undefined;
-            const tileElement = createTileElement(tile, player, enemy, enemyMarkerLabel);
+            const tileElement = createTileElement(tile, player, enemy, enemyMarkerLabel, motionState, enemyIndex >= 0 ? enemyIndex : undefined);
             if (currentPhase === 'adventurer' &&
                 player &&
                 turnResources &&
